@@ -21,6 +21,11 @@ data class RecognitionConfig(
     val languageTag: String = "zh-CN",
     /** Silencia el pitido que el servicio de Google emite al empezar a escuchar. */
     val muteBeep: Boolean = true,
+    /**
+     * Solo motor offline: dónde escribir la grabación de la sesión (m4a) —
+     * el motor codifica el MISMO PCM que reconoce. El motor en línea lo ignora.
+     */
+    val recordToFile: java.io.File? = null,
 )
 
 /**

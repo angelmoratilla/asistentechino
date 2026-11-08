@@ -545,13 +545,22 @@ private fun SettingsSheet(
                         label = { Text("En el dispositivo") },
                         enabled = ui.onDeviceAvailable,
                     )
+                    FilterChip(
+                        selected = ui.engineId == "offline",
+                        onClick = { onEngineId("offline") },
+                        label = { Text("Offline (beta)") },
+                    )
                 }
                 Text(
-                    if (ui.onDeviceAvailable) {
-                        "«En el dispositivo»: sin pitidos y sin conexión, pero algo menos preciso."
-                    } else {
-                        "«En el dispositivo» no está disponible en este móvil (requiere Android 12+ " +
-                            "y el modelo offline de Google)."
+                    when {
+                        ui.engineId == "offline" ->
+                            "«Offline»: sin red y sin pitidos, graba y transcribe a la vez. " +
+                                "Solo chino de momento (beta)."
+                        ui.onDeviceAvailable ->
+                            "«En el dispositivo»: sin pitidos y sin conexión, pero algo menos preciso."
+                        else ->
+                            "«En el dispositivo» no está disponible en este móvil (requiere Android 12+ " +
+                                "y el modelo offline de Google)."
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline,

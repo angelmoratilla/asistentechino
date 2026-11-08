@@ -57,6 +57,9 @@ object ClassController {
     @Volatile
     private var activeEngineRef: SpeechEngine? = null
 
+    @Volatile
+    private var activeEngineId: String = "online"
+
     /** Motor en uso durante la sesión actual (null si no hay sesión). */
     fun activeEngine(): SpeechEngine? = activeEngineRef
 
@@ -82,10 +85,10 @@ object ClassController {
     // Solo el motor activo emite; el merge permite cambiar de motor entre sesiones.
     // perezosos: engineFor necesita appContext, que se fija en init().
     val state: Flow<EngineState> by lazy {
-        merge(engineFor("online").state, engineFor("ondevice").state)
+        merge(engineFor("online").state, engineFor("ondevice").state, engineFor("offline").state)
     }
     val restartCount: Flow<Int> by lazy {
-        merge(engineFor("online").restartCount, engineFor("ondevice").restartCount)
+        merge(engineFor("online").restartCount, engineFor("ondevice").restartCount, engineFor("offline").restartCount)
     }
 
     private var sessionFile: File? = null
@@ -150,10 +153,22 @@ object ClassController {
 
         // Orden probado en Xiaomi/MIUI: el reconocedor toma el micro PRIMERO y
         // la grabadora después (así el reconocedor no se queda sin audio).
+        // Excepción: el motor offline es el ÚNICO dueño del micro y graba él
+        // mismo el mismo PCM que reconoce (config.recordToFile).
         val engine = engineFor(engineId)
         activeEngineRef = engine
-        engine.start(RecognitionConfig(languageTag = language, muteBeep = muteBeep))
-        val recorded = if (recordAudio) startRecorder() else true
+        activeEngineId = engineId
+        val recordFile = if (recordAudio && engineId == "offline") {
+            sessions.audioFileOf(file.nameWithoutExtension)
+        } else {
+            null
+        }
+        engine.start(RecognitionConfig(languageTag = language, muteBeep = muteBeep, recordToFile = recordFile))
+        val recorded = when {
+            engineId == "offline" -> recordAudio
+            recordAudio -> startRecorder()
+            else -> true
+        }
         _recording.value = recordAudio && recorded
 
         observeEngineIfNeeded()
@@ -194,7 +209,8 @@ object ClassController {
         if (collecting) return
         collecting = true
         scope.launch {
-            merge(engineFor("online").finals, engineFor("ondevice").finals).collect { segment ->
+            merge(engineFor("online").finals, engineFor("ondevice").finals, engineFor("offline").finals)
+                .collect { segment ->
                 lastEngineActivityMs = System.currentTimeMillis()
                 // El offset respecto al inicio de la clase lo calcula el
                 // controlador: así los reinicios o cambios de motor no
@@ -206,7 +222,8 @@ object ClassController {
             }
         }
         scope.launch {
-            merge(engineFor("online").partial, engineFor("ondevice").partial).collect { text ->
+            merge(engineFor("online").partial, engineFor("ondevice").partial, engineFor("offline").partial)
+                .collect { text ->
                 if (text.isNotEmpty()) lastEngineActivityMs = System.currentTimeMillis()
                 _partial.value = text
             }
@@ -231,6 +248,10 @@ object ClassController {
         starvationJob = scope.launch {
             while (_isListening.value) {
                 delay(15_000)
+                // El monitor es un parche del motor de Google (que puede quedarse
+                // sin micro en MIUI): el motor offline nunca se queda mudo porque
+                // él mismo dueño del micro, así que no aplica.
+                if (activeEngineId == "offline") continue
                 if (!_isListening.value) break
                 val idleMs = System.currentTimeMillis() - lastEngineActivityMs
                 if (idleMs <= STARVATION_TIMEOUT_MS) continue

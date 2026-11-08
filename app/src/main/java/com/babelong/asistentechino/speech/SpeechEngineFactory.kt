@@ -22,9 +22,8 @@ object SpeechEngineFactory {
         /** Reconocedor en el dispositivo (API 31+): sin red, sin pitidos, modelo offline. */
         GOOGLE_ON_DEVICE("En el dispositivo (sin red)", "ondevice"),
 
-        // Reservado para v2:
-        // VOSK_OFFLINE("Vosk (offline, privado)"),
-        // CLOUD_PREMIUM("Nube de pago (máxima precisión)"),
+        /** Fase 1: sherpa-onnx 100 % offline, la app dueña del micrófono. */
+        OFFLINE_SHERPA("Offline sherpa-onnx (chino)", "offline"),
     }
 
     fun fromPrefValue(prefValue: String): EngineId =
@@ -33,5 +32,6 @@ object SpeechEngineFactory {
     fun create(id: EngineId, context: Context, scope: CoroutineScope): SpeechEngine = when (id) {
         EngineId.GOOGLE_ANDROID -> GoogleSpeechEngine(context, scope, onDevice = false)
         EngineId.GOOGLE_ON_DEVICE -> GoogleSpeechEngine(context, scope, onDevice = true)
+        EngineId.OFFLINE_SHERPA -> OfflineSpeechEngine(context, scope)
     }
 }
