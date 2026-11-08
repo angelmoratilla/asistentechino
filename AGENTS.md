@@ -160,6 +160,17 @@ líneas `mm:ss\ttexto`, pie `# fin=`; audio hermano `<mismo-nombre>.m4a`.
   v1.13.8 + modelo zipformer2-CTC-zh int8 (21 MB en assets) — parciales en vivo, frase
   final autoguardada, y grabación m4a simultánea en el mismo MIUI que ayer era imposible.
   Calidad vs Google en la misma frase TTS: idéntica salvo 第10页/第十页.
+- **A/B con voz humana (08/11 noche)**: el usuario leyó un párrafo de referencia
+  (61 caracteres, pronunciación de estudiante) con cada motor. Resultado:
+  **Google 77% (47/61) vs Offline 69% (42/61)**. Análisis: ~la mitad de los errores
+  del offline son HOMÓFONOS (得/的, 听/盯 tīng, 北/被, 工/公 — sonido correcto,
+  carácter distinto) → el homophone replacer / LM los arreglaría; varios errores
+  salieron en AMBOS motores (快→怪 kuài/guài, 我们 perdido) → pronunciación del
+  lector, no del motor. Con el pinyin debajo, el offline es utilizable para
+  seguir la clase. Nota de proceso: el A/B con Google falló dos veces por el
+  conflicto de micro (grabación ON ahoga a Google en MIUI) — con grabación OFF
+  funcionó; se bajó STARVATION_TIMEOUT a 15 s y un push de prefs roto por stdin
+  VACIÓ el fichero de ajustes (restaurar ajustes por UI, no por fichero).
   Pendiente de pulir antes de fusionar a main: validar precisión con voz humana real
   (no solo TTS), quitar los modos debug cuando ya no hagan falta, y decidir el fluxo
   del ajuste de grabación con el motor offline.
