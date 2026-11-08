@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema oscuro: la app está pensada para usarse en clase, a menudo con poca luz.
+         El tema real lo dibuja Compose; este solo evita el destello blanco inicial. -->
+    <style name="Theme.AsistenteChino" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+</resources>

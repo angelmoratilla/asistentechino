@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Carpeta donde se guardan las transcripciones de las clases -->
+    <external-files-path name="clases" path="clases/" />
+</paths>

@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Asistente Chino</string>
+    <string name="notification_title">Transcribiendo tu clase</string>
+    <string name="notification_text">El micrófono sigue escuchando aunque apagues la pantalla</string>
+    <string name="notification_stop">Parar</string>
+</resources>
