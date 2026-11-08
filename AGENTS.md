@@ -160,6 +160,13 @@ líneas `mm:ss\ttexto`, pie `# fin=`; audio hermano `<mismo-nombre>.m4a`.
   v1.13.8 + modelo zipformer2-CTC-zh int8 (21 MB en assets) — parciales en vivo, frase
   final autoguardada, y grabación m4a simultánea en el mismo MIUI que ayer era imposible.
   Calidad vs Google en la misma frase TTS: idéntica salvo 第10页/第十页.
+- **Bake-off de modelos en PC (08/11)** con el MISMO audio real (lectura del usuario,
+  m4a del motor offline decodificado): CTC abril 26 MB → 75%, CTC junio 162 MB → 74%
+  (¡6x más grande y NO mejora!), transducer junio int8 160 MB → 79% (mejor con
+  homófonos y 我一起来…, pero 160 MB por 4 puntos no paga). **DECISIÓN: quedamos con
+  el CTC de abril (26 MB)**; el techo 75-79% es la pronunciación sin LM — el profesor
+  con mejor dicción puntuará más alto. Validado también con sherpa-python 2.0.1 en PC
+  (from_zipformer2_ctc / from_transducer).
 - **A/B con voz humana (08/11 noche)**: el usuario leyó un párrafo de referencia
   (61 caracteres, pronunciación de estudiante) con cada motor. Resultado:
   **Google 77% (47/61) vs Offline 69% (42/61)**. Análisis: ~la mitad de los errores
