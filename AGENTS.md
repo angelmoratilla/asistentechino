@@ -44,6 +44,14 @@ JAVA_HOME=/home/angel/tools/jdk17 ANDROID_HOME=/home/angel/Android/Sdk ./gradlew
 
 La APK entregable se copia a `apk/AsistenteChino-v1.0-debug.apk`.
 
+### ⚠️ Protocolo de pruebas de sonido (preferencia del usuario)
+
+El usuario escucha MÚSICA mientras el agente trabaja. **AVISAR SIEMPRE antes de
+reproducir sonido** (TTS por los altavoces del PC) para que pare la música, por dos
+motivos: 1) no interferir con su música, y 2) el micro del móvil capta los altavoces
+del PC — la música arruinaría la prueba de transcripción. Además, iniciar sesiones
+con el motor de Google silencia la música del móvil (mute anti-pitidos).
+
 ### Probar reconocimiento sin hablar (TTS por los altavoces del PC)
 
 ```bash
@@ -140,7 +148,7 @@ líneas `mm:ss\ttexto`, pie `# fin=`; audio hermano `<mismo-nombre>.m4a`.
 10. En MIUI pedir la exención de optimización de batería (la app lo ofrece al escuchar);
     es clave para el FGS con pantalla apagada.
 
-## Estado actual (08/11/2026)
+## Estado actual (08/11/2026, noche)
 
 - **v1 completa + Fase 0 + frases importantes**: el usuario probó la app EN CLASE REAL
   ("funciona bastante bien") y pidió marcar frases. Implementado y VERIFICADO en el móvil
@@ -148,6 +156,14 @@ líneas `mm:ss\ttexto`, pie `# fin=`; audio hermano `<mismo-nombre>.m4a`.
   en el detalle + export con prefijo ★; persistido como prefijo `★` en el .txt
   (`00:13\t★大家好…`), toggle idempotente, cabecera/pie intactos.
 - Tests: 21 unitarios en verde (incluida regresión de precisión ms en applyImportantMark).
+- **Fase 1 spike VERIFICADO en el móvil** (rama develop): motor offline sherpa-onnx
+  v1.13.8 + modelo zipformer2-CTC-zh int8 (21 MB en assets) — parciales en vivo, frase
+  final autoguardada, y grabación m4a simultánea en el mismo MIUI que ayer era imposible.
+  Calidad vs Google en la misma frase TTS: idéntica salvo 第10页/第十页.
+  Pendiente de pulir antes de fusionar a main: validar precisión con voz humana real
+  (no solo TTS), quitar los modos debug cuando ya no hagan falta, y decidir el fluxo
+  del ajuste de grabación con el motor offline.
+- El usuario pidió trabajar en rama `develop` (main = v1 congelada); Fase 1 commiteada allí.
 - La app está instalada como debug; reinstalar con `-r` conserva datos.
 
 ## Hoja de ruta acordada
